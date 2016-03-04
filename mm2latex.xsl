@@ -26,6 +26,20 @@
     </xsl:choose>
   </xsl:variable>
 
+  <!--
+		the variable to be used to determine whether text nodes should be displayed
+	-->
+  <xsl:variable name="droptext">
+    <xsl:choose>
+      <xsl:when test="//map/node/attribute[@NAME='droptext']">
+        <xsl:value-of select="//map/node/attribute[@NAME='droptext']/@VALUE" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'false'" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:template match="map">
     <xsl:apply-templates mode="heading"/>
   </xsl:template>
@@ -92,21 +106,22 @@
     </xsl:choose>
   </xsl:template>
 
+
   <!-- output nodes as itemized list -->
   <xsl:template name="itemize">
-    <xsl:param name="i" select="./node" />
-    <xsl:value-of select="concat('\begin{itemize}', $newline)" />
-    <xsl:for-each select="$i">
-      <xsl:text>\item </xsl:text>
-      <xsl:call-template name="output-node" />
-      <xsl:value-of select="$newline" />
+  	<xsl:if test="$droptext = 'false' and ./node">
+      <xsl:param name="i" select="./node" />
+      <xsl:value-of select="concat('\begin{itemize}', $newline)" />
+      <xsl:for-each select="$i">
+        <xsl:text>\item </xsl:text>
+        <xsl:call-template name="output-node" />
+        <xsl:value-of select="$newline" />
 
-      <!-- recursive call if children present -->
-      <xsl:if test="./node">
+        <!-- recursive call -->
         <xsl:call-template name="itemize" />
-      </xsl:if>
-    </xsl:for-each>
-    <xsl:value-of select="concat('\end{itemize}', $newline)" />
+      </xsl:for-each>
+      <xsl:value-of select="concat('\end{itemize}', $newline)" />
+  	</xsl:if>
   </xsl:template>
 
   <xsl:template name="output-node">
@@ -117,17 +132,26 @@
     <xsl:call-template name="output-note-text-as-bodytext">
       <xsl:with-param name="contentType" select="'NOTE'"/>
     </xsl:call-template>
+
+    <!-- translate arrow to ref -->
+    <xsl:if test="@ID != ''">
+      <xsl:value-of select="concat('\label{', @ID, '}', $newline)" />
+    </xsl:if>
+
+    <xsl:if test="arrowlink/@DESTINATION != ''">
+      <xsl:value-of select="concat('\ref{', arrowlink/@DESTINATION, '}', $newline)" />
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="output-node-text-as-text">
     <xsl:choose>
       <xsl:when test="attribute[@NAME = 'key']">
         <xsl:text>\cite{</xsl:text>
-        <xsl:value-of select="attribute[@NAME = 'key']/@VALUE" />
+        <xsl:value-of select="attribute[@NAME = 'key']/@VALUE" disable-output-escaping="yes" />
         <xsl:text>}</xsl:text>
       </xsl:when>
       <xsl:when test="@TEXT">
-        <xsl:value-of select="normalize-space(@TEXT)" />
+        <xsl:value-of select="normalize-space(@TEXT)" disable-output-escaping="yes" />
       </xsl:when>
       <xsl:when test="richcontent[@TYPE='NODE']">
         <xsl:value-of select="normalize-space(richcontent[@TYPE='NODE']/html/body)" disable-output-escaping="yes" />
