@@ -3,6 +3,10 @@
 
 		MINDMAPEXPORTFILTER tex Latex custom
 
+		(c) 2016 by Fredrik Teschke
+		licensed under GPLv3
+		based on prior work by Naoki Nose and Eric Lavarde on mm2wordml_utf8.xsl
+
 		supported attributes on root node
 			head-maxlevel (int): any node greater than this depth is itemized rather than creating a new structure level (e.g. chapter, section, ...)
 			droptext (boolean): itemized text is not output
