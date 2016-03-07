@@ -174,14 +174,14 @@
 		</xsl:call-template>
 		<!-- translate arrow to ref -->
 		<xsl:if test="@ID != ''">
-			<xsl:value-of select="concat('\label{', @ID, '}', $newline)"/>
+			<xsl:value-of select="concat('\label{', @ID, '}')"/>
 		</xsl:if>
 		<xsl:if test="arrowlink/@DESTINATION != ''">
 			<xsl:value-of select="concat(', see \ref{', arrowlink/@DESTINATION, '}', $newline)"/>
 		</xsl:if>
 		<!-- output citation -->
 		<xsl:if test="attribute[@NAME = 'key']">
-			<xsl:text>\cite{</xsl:text>
+			<xsl:text> \cite{</xsl:text>
 			<xsl:value-of disable-output-escaping="yes" select="attribute[@NAME = 'key']/@VALUE"/>
 			<xsl:text>}</xsl:text>
 		</xsl:if>
