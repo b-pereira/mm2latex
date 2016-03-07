@@ -219,7 +219,7 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:text>\begin{figure}[htb]
+		<xsl:text>\begin{figure}[H]
 \begin{center}
 \includegraphics[width=</xsl:text>
 		<xsl:value-of select="concat($image_width, ']{')" />
