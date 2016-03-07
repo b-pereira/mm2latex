@@ -16,6 +16,7 @@
 			NoHeading: if attribute is present, the node and all childern are itemized
 			LastHeading: if attribute is present, all children are itemized
 			image: if attribute is present, the figure located at $image_directory/$image is inserted
+			image_width: used for width of figure if present
 	-->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
 	<xsl:output encoding="UTF-8" omit-xml-declaration="yes"/>
@@ -208,9 +209,20 @@
 	</xsl:template>
 
 	<xsl:template name="output-node-as-image">
+		<xsl:variable name="image_width">
+			<xsl:choose>
+				<xsl:when test="attribute[@NAME='image_width']">
+					<xsl:value-of select="attribute[@NAME='image_width']/@VALUE"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'\textwidth'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
 		<xsl:text>\begin{figure}[htb]
 \begin{center}
-\includegraphics[width=\textwidth]{</xsl:text>
+\includegraphics[width=</xsl:text>
+		<xsl:value-of select="concat($image_width, ']{')" />
 		<xsl:value-of disable-output-escaping="yes" select="concat('&quot;', $image_directory, '/', attribute[@NAME='image']/@VALUE, '&quot;')"/>
 		<xsl:text>}
 \caption{</xsl:text>
