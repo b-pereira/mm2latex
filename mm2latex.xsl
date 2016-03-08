@@ -81,7 +81,7 @@
 			<!-- we change our mind if the NoHeading attribute is present, in this case we itemize single item -->
 			<xsl:when test="attribute/@NAME = 'NoHeading'">
 				<xsl:call-template name="itemize">
-					<xsl:with-param name="i" select="."/>
+					<xsl:with-param name="i" select="." />
 				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
@@ -139,7 +139,7 @@
 	<!-- output nodes as itemized list -->
 	<xsl:template name="itemize">
 		<xsl:param name="i" select="./node"/>
-		<xsl:if test="$droptext = 'false' and ./node">
+		<xsl:if test="$droptext = 'false' and $i">
 			<xsl:value-of select="concat('\begin{itemize}', $newline)"/>
 			<xsl:for-each select="$i">
 				<xsl:text>\item </xsl:text>				
