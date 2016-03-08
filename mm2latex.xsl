@@ -79,10 +79,10 @@
 	<xsl:template match="node" mode="heading">
 		<xsl:param name="level" select="0"/>
 		<xsl:choose>
-			<!-- we change our mind if the NoHeading attribute is present, in this case we itemize single item -->
-			<xsl:when test="attribute/@NAME = 'drop'">
+			<xsl:when test="attribute[@NAME = 'drop']">
 				<!-- ignore node -->
 			</xsl:when>
+			<!-- we change our mind if the NoHeading attribute is present, in this case we this node and its children -->
 			<xsl:when test="attribute/@NAME = 'NoHeading'">
 				<xsl:call-template name="itemize">
 					<xsl:with-param name="i" select="." />
@@ -146,11 +146,13 @@
 		<xsl:if test="$droptext = 'false' and $i">
 			<xsl:value-of select="concat('\begin{itemize}', $newline)"/>
 			<xsl:for-each select="$i">
-				<xsl:text>\item </xsl:text>				
-				<xsl:call-template name="output-node"/>
-				<xsl:value-of select="$newline"/>
-				<!-- recursive call -->
-				<xsl:call-template name="itemize"/>
+				<xsl:if test="not(attribute[@NAME = 'drop'])">
+					<xsl:text>\item </xsl:text>				
+					<xsl:call-template name="output-node"/>
+					<xsl:value-of select="$newline"/>
+					<!-- recursive call -->
+					<xsl:call-template name="itemize"/>
+				</xsl:if>
 			</xsl:for-each>
 			<xsl:value-of select="concat('\end{itemize}', $newline)"/>
 		</xsl:if>
