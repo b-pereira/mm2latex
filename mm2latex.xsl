@@ -17,6 +17,7 @@
 			LastHeading: if attribute is present, all children are itemized
 			image: if attribute is present, the figure located at $image_directory/$image is inserted
 			image_width: used for width of figure if present
+			drop: do not output node and children
 	-->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
 	<xsl:output encoding="UTF-8" omit-xml-declaration="yes"/>
@@ -79,6 +80,9 @@
 		<xsl:param name="level" select="0"/>
 		<xsl:choose>
 			<!-- we change our mind if the NoHeading attribute is present, in this case we itemize single item -->
+			<xsl:when test="attribute/@NAME = 'drop'">
+				<!-- ignore node -->
+			</xsl:when>
 			<xsl:when test="attribute/@NAME = 'NoHeading'">
 				<xsl:call-template name="itemize">
 					<xsl:with-param name="i" select="." />
@@ -177,13 +181,16 @@
 			<xsl:value-of select="concat('\label{', @ID, '}')"/>
 		</xsl:if>
 		<xsl:if test="arrowlink/@DESTINATION != ''">
-			<xsl:value-of select="concat(', see \ref{', arrowlink/@DESTINATION, '}', $newline)"/>
+			<xsl:text>, see \cref{</xsl:text>
+			<!-- can have several pointers -->
+			<xsl:for-each select="arrowlink/@DESTINATION">
+		    	<xsl:value-of select="concat(., ',')"/>
+			</xsl:for-each>
+		  	<xsl:text>}</xsl:text>
 		</xsl:if>
-		<!-- output citation -->
+		<!-- output citation, one node can only have one -->
 		<xsl:if test="attribute[@NAME = 'key']">
-			<xsl:text> \cite{</xsl:text>
-			<xsl:value-of disable-output-escaping="yes" select="attribute[@NAME = 'key']/@VALUE"/>
-			<xsl:text>}</xsl:text>
+      	  	<xsl:value-of select="concat(' \cite{', attribute[@NAME = 'key']/@VALUE, '}')" />
 		</xsl:if>
 	</xsl:template>
 
