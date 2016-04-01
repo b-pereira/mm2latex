@@ -19,7 +19,7 @@
 			image_width: used for width of figure if present
 			drop: do not output node and children
 	-->
-<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
 	<xsl:output encoding="UTF-8" omit-xml-declaration="yes"/>
 	<xsl:variable name="newline">
 		<xsl:text>
