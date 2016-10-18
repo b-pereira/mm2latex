@@ -3,6 +3,11 @@ Docear MindMap to Latex XSLT
 
 Based on `mm2wordml_utf8.xsl` by Naoki Nose and Eric Lavarde
 
+# Usage
+1. copy (or link) the `mm2latex.xsl` file into `<DOCEAR_HOME>/xslt/` (`DOCEAR_HOME` is probably `~/.docear` on linux)
+2. restart docear
+3. in docear `Tools->Export` with `Type: Latex Custom`
+
 # supported attributes on root node
 - **head-maxlevel** `int`: any node greater than this depth is itemized rather than creating a new structure level (e.g. chapter, section, ...)
 - **droptext** `boolean`: itemized text is not output
