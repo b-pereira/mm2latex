@@ -232,7 +232,7 @@
 \begin{center}
 \includegraphics[width=</xsl:text>
 		<xsl:value-of select="concat($image_width, ']{')" />
-		<xsl:value-of disable-output-escaping="yes" select="concat('&quot;', $image_directory, '/', attribute[@NAME='image']/@VALUE, '&quot;')"/>
+		<xsl:value-of disable-output-escaping="yes" select="concat($image_directory, '/', attribute[@NAME='image']/@VALUE)"/>
 		<xsl:text>}
 \caption{</xsl:text>
 		<xsl:call-template name="output-node-as-text"/>
