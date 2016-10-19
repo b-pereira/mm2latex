@@ -3,15 +3,19 @@ Docear MindMap to Latex XSLT
 
 Based on `mm2wordml_utf8.xsl` by Naoki Nose and Eric Lavarde
 
+<<<<<<< HEAD
+## Usage hints
+- use latex packages `\usepackage{graphicx}` and `\usepackage[space]{grffile}` to support image files (with spaces in their path)
+
+## supported attributes on root node
+=======
 # Usage
 1. copy (or link) the `mm2latex.xsl` file into `<DOCEAR_HOME>/xslt/` (`DOCEAR_HOME` is probably `~/.docear` on linux)
 2. restart docear
 3. in docear `Tools->Export` with `Type: Latex Custom`
 
-## Usage hints
-- use latex packages `\usepackage{graphicx}` and `\usepackage[space]{grffile}` to support image files (with spaces in their path)
-
-## supported attributes on root node
+# supported attributes on root node
+>>>>>>> bd441769100d0b06e56ff04d9ff371ad4462c6ec
 - **head-maxlevel** `int`: any node greater than this depth is itemized rather than creating a new structure level (e.g. chapter, section, ...)
 - **droptext** `boolean`: itemized text is not output
 - **image_directory** `string`: relative or absolute path from latex document to docear image directory (symlink advised, e.g. `mklink /D docear_images "..\...\_data\...\default_files\"`)
