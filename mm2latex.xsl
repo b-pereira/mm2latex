@@ -183,10 +183,10 @@
 			<xsl:value-of select="concat('\label{', @ID, '}')"/>
 		</xsl:if>
 		<xsl:if test="arrowlink/@DESTINATION != ''">
-			<xsl:text>, see \cref{</xsl:text>
+			<xsl:text>, see \autoref{</xsl:text>
 			<!-- can have several pointers -->
 			<xsl:for-each select="arrowlink/@DESTINATION">
-		    	<xsl:value-of select="concat(., ',')"/>
+		    	<xsl:value-of select="concat(., '')"/>
 			</xsl:for-each>
 		  	<xsl:text>}</xsl:text>
 		</xsl:if>
