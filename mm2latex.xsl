@@ -17,7 +17,8 @@
 			LastHeading: if attribute is present, all children are itemized
 			image: if attribute is present, the figure located at $image_directory/$image is inserted
 			image_width: used for width of figure if present
-			drop: do not output node and children (alternatively: `drop` style applied to node -> `STYLE_REF`)
+			drop: do not output node and children
+         alternatively apply a style applied with the same name to the node
 	-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
 	<xsl:output encoding="UTF-8" omit-xml-declaration="yes"/>
@@ -83,7 +84,7 @@
 				<!-- ignore node -->
 			</xsl:when>
 			<!-- we change our mind if the NoHeading attribute is present, in this case we this node and its children -->
-			<xsl:when test="attribute/@NAME = 'NoHeading'">
+			<xsl:when test="attribute/@NAME = 'NoHeading' or @STYLE_REF = 'NoHeading'">
 				<xsl:call-template name="itemize">
 					<xsl:with-param name="i" select="." />
 				</xsl:call-template>
@@ -124,7 +125,7 @@
 					else we loop back into the heading mode
 				-->
 				<xsl:choose>
-					<xsl:when test="attribute/@NAME = 'LastHeading'">
+					<xsl:when test="attribute/@NAME = 'LastHeading' or @STYLE_REF = 'LastHeading']">
 						<xsl:call-template name="itemize"/>
 					</xsl:when>
 					<xsl:when test="$level &lt; $maxlevel">
