@@ -125,7 +125,7 @@
 					else we loop back into the heading mode
 				-->
 				<xsl:choose>
-					<xsl:when test="attribute/@NAME = 'LastHeading' or @STYLE_REF = 'LastHeading']">
+					<xsl:when test="attribute/@NAME = 'LastHeading' or @STYLE_REF = 'LastHeading'">
 						<xsl:call-template name="itemize"/>
 					</xsl:when>
 					<xsl:when test="$level &lt; $maxlevel">
