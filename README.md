@@ -22,7 +22,10 @@ Based on `mm2wordml_utf8.xsl` by Naoki Nose and Eric Lavarde
 - **image**: if attribute is present, the figure located at $image_directory/$image is inserted
 - **image_width**: used for width of figure if present
 - **drop**: do not output node and children
-  - Alternatively, define and apply a node style named `drop` (e.g. which makes the text gray). mm2latex also picks up the `STYLE_REF` attribute.
+
+## styles instead of attributes
+- If you only need to apply one attribute, you can apply a style with the same name instead.
+  - e.g. create and apply a `drop` style which makes the text gray
 
 ## License
 GPLv2
