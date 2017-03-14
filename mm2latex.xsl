@@ -17,7 +17,7 @@
 			LastHeading: if attribute is present, all children are itemized
 			image: if attribute is present, the figure located at $image_directory/$image is inserted
 			image_width: used for width of figure if present
-			drop: do not output node and children
+			drop: do not output node and children (alternatively: `drop` style applied to node -> `STYLE_REF`)
 	-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
 	<xsl:output encoding="UTF-8" omit-xml-declaration="yes"/>
@@ -79,7 +79,7 @@
 	<xsl:template match="node" mode="heading">
 		<xsl:param name="level" select="0"/>
 		<xsl:choose>
-			<xsl:when test="attribute[@NAME = 'drop']">
+			<xsl:when test="@STYLE_REF = 'drop' or attribute[@NAME = 'drop']">
 				<!-- ignore node -->
 			</xsl:when>
 			<!-- we change our mind if the NoHeading attribute is present, in this case we this node and its children -->
