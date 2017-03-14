@@ -146,7 +146,7 @@
 		<xsl:if test="$droptext = 'false' and $i">
 			<xsl:value-of select="concat('\begin{itemize}', $newline)"/>
 			<xsl:for-each select="$i">
-				<xsl:if test="not(attribute[@NAME = 'drop'])">
+				<xsl:if test="not(@STYLE_REF = 'drop') and not(attribute[@NAME = 'drop'])">
 					<xsl:text>\item </xsl:text>				
 					<xsl:call-template name="output-node"/>
 					<xsl:value-of select="$newline"/>
