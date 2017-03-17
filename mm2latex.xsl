@@ -18,6 +18,7 @@
 			image: if attribute is present, the figure located at $image_directory/$image is inserted
 			image_width: used for width of figure if present
 			drop: do not output node and children
+			code: output node as \begin{lstlisting}...\end{lstlisting}
          alternatively apply a style applied with the same name to the node
 	-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
@@ -165,6 +166,9 @@
 			<xsl:when test="attribute/@NAME = 'image'">
 				<xsl:call-template name="output-node-as-image"/>
 			</xsl:when>
+			<xsl:when test="@STYLE_REF = 'code' or attribute/@NAME = 'code'">
+				<xsl:call-template name="output-node-as-code"/>
+			</xsl:when>
 			<xsl:otherwise>
 				<xsl:call-template name="output-node-as-text"/>
 			</xsl:otherwise>
@@ -240,5 +244,11 @@
 		<xsl:text>}
 \end{center}
 \end{figure}</xsl:text>
+	</xsl:template>
+
+	<xsl:template name="output-node-as-code">
+		<xsl:text>\begin{lstlisting}</xsl:text>
+		<xsl:value-of disable-output-escaping="yes" select="@TEXT"/>
+		<xsl:text>\end{lstlisting}</xsl:text>
 	</xsl:template>
 </xsl:stylesheet>

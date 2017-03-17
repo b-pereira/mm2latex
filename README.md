@@ -22,6 +22,7 @@ Based on `mm2wordml_utf8.xsl` by Naoki Nose and Eric Lavarde
 - **image**: if attribute is present, the figure located at $image_directory/$image is inserted
 - **image_width**: used for width of figure if present
 - **drop**: do not output node and children
+- **code**: output node in `lstlisting block`
 
 ## styles instead of attributes
 - If you only need to apply one attribute, you can apply a style with the same name instead.
