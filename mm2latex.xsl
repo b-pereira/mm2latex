@@ -19,6 +19,9 @@
 			image_width: used for width of figure if present
 			drop: do not output node and children
 			code: output node as \begin{lstlisting}...\end{lstlisting}
+			latex: output node without formatting
+			image_row: images of child nodes are arranged in a row (image_width is mandatory for child nodes)
+			image_sideways: rotate image 90 degrees
          alternatively apply a style applied with the same name to the node
 	-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
@@ -148,13 +151,21 @@
 		<xsl:if test="$droptext = 'false' and $i">
 			<xsl:value-of select="concat('\begin{itemize}', $newline)"/>
 			<xsl:for-each select="$i">
-				<xsl:if test="not(@STYLE_REF = 'drop') and not(attribute[@NAME = 'drop'])">
-					<xsl:text>\item </xsl:text>				
-					<xsl:call-template name="output-node"/>
-					<xsl:value-of select="$newline"/>
-					<!-- recursive call -->
-					<xsl:call-template name="itemize"/>
-				</xsl:if>
+				<xsl:choose>
+					<xsl:when test="@STYLE_REF = 'drop' or attribute[@NAME = 'drop']">
+						<!-- do nothing -->
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:text>\item </xsl:text>
+						<xsl:call-template name="output-node"/>
+						<xsl:value-of select="$newline"/>
+						<!-- no recursive call for image_row children -->
+						<xsl:if test="not(attribute/@NAME = 'image_row')">
+							<!-- recursive call -->
+							<xsl:call-template name="itemize"/>
+						</xsl:if>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:for-each>
 			<xsl:value-of select="concat('\end{itemize}', $newline)"/>
 		</xsl:if>
@@ -165,6 +176,12 @@
 		<xsl:choose>
 			<xsl:when test="attribute/@NAME = 'image'">
 				<xsl:call-template name="output-node-as-image"/>
+			</xsl:when>
+			<xsl:when test="attribute/@NAME = 'image_row'">
+				<xsl:call-template name="output-node-as-image-row"/>
+			</xsl:when>
+			<xsl:when test="@STYLE_REF = 'latex' or attribute/@NAME = 'latex'">
+				<xsl:call-template name="output-node-as-latex"/>
 			</xsl:when>
 			<xsl:when test="@STYLE_REF = 'code' or attribute/@NAME = 'code'">
 				<xsl:call-template name="output-node-as-code"/>
@@ -177,10 +194,10 @@
 
 	<xsl:template name="output-node-as-text">
 		<xsl:call-template name="output-node-text-as-text"/>
-		<xsl:call-template name="output-note-text-as-bodytext">
+		<xsl:call-template name="output-node-text-as-bodytext">
 			<xsl:with-param name="contentType" select="'DETAILS'"/>
 		</xsl:call-template>
-		<xsl:call-template name="output-note-text-as-bodytext">
+		<xsl:call-template name="output-node-text-as-bodytext">
 			<xsl:with-param name="contentType" select="'NOTE'"/>
 		</xsl:call-template>
 		<!-- translate arrow to ref -->
@@ -215,7 +232,7 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<xsl:template name="output-note-text-as-bodytext">
+	<xsl:template name="output-node-text-as-bodytext">
 		<xsl:param name="contentType"/>
 		<xsl:if test="richcontent[@TYPE=$contentType]">
 			<xsl:value-of disable-output-escaping="yes" select="string(richcontent[@TYPE='DETAILS']/html/body)"/>
@@ -233,7 +250,30 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:text>\begin{figure}[H]
+		<xsl:variable name="figure">
+			<xsl:choose>
+				<xsl:when test="attribute/@NAME = 'image_sideways'">
+					<xsl:text>sidewaysfigure</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text>figure</xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="position">
+			<xsl:choose>
+				<!-- sidewaysimage does not work with [H] parameter -->
+				<xsl:when test="attribute/@NAME = 'image_sideways'">
+					<xsl:text></xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text>[H]</xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
+		<xsl:value-of select="concat('\begin{', $figure, '}', $position)" />
+		<xsl:text>
 \begin{center}
 \includegraphics[width=</xsl:text>
 		<xsl:value-of select="concat($image_width, ']{')" />
@@ -243,12 +283,72 @@
 		<xsl:call-template name="output-node-as-text"/>
 		<xsl:text>}
 \end{center}
-\end{figure}</xsl:text>
+</xsl:text>
+		<xsl:value-of select="concat('\end{', $figure, '}', $newline)" />
+	</xsl:template>
+
+	<xsl:template name="output-node-as-subimage">
+		<xsl:text>
+	\begin{subfigure}[b]{</xsl:text>
+		<xsl:value-of select="attribute[@NAME='image_width']/@VALUE"/>
+		<xsl:text>}
+		\includegraphics[width=\textwidth]{</xsl:text>
+		<xsl:value-of disable-output-escaping="yes" select="concat($image_directory, '/', attribute[@NAME='image']/@VALUE)"/>
+		<xsl:text>}
+		\caption{</xsl:text>
+		<xsl:call-template name="output-node-as-text"/>
+		<xsl:text>}
+	\end{subfigure}</xsl:text>
+	</xsl:template>
+
+	<xsl:template name="output-node-as-image-row">
+		<xsl:param name="i" select="./node"/>
+		<xsl:variable name="figure">
+			<xsl:choose>
+				<xsl:when test="attribute/@NAME = 'image_sideways'">
+					<xsl:text>sidewaysfigure</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text>figure</xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="position">
+			<xsl:choose>
+				<!-- sidewaysimage does not work with [H] parameter -->
+				<xsl:when test="attribute/@NAME = 'image_sideways'">
+					<xsl:text></xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text>[H]</xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
+		<xsl:value-of select="concat('\begin{', $figure, '}', $position)" />
+		<xsl:text>
+	\begin{center}</xsl:text>
+
+		<xsl:for-each select="$i">
+			<xsl:call-template name="output-node-as-subimage"/>
+		</xsl:for-each>
+
+		<xsl:text>
+	\caption{</xsl:text>
+		<xsl:call-template name="output-node-as-text"/>
+		<xsl:text>}
+	\end{center}
+</xsl:text>
+		<xsl:value-of select="concat('\end{', $figure, '}', $newline)" />
 	</xsl:template>
 
 	<xsl:template name="output-node-as-code">
 		<xsl:text>\begin{lstlisting}</xsl:text>
 		<xsl:value-of disable-output-escaping="yes" select="@TEXT"/>
 		<xsl:text>\end{lstlisting}</xsl:text>
+	</xsl:template>
+
+	<xsl:template name="output-node-as-latex">
+		<xsl:value-of disable-output-escaping="yes" select="@TEXT"/>
 	</xsl:template>
 </xsl:stylesheet>
