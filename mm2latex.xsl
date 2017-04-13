@@ -24,6 +24,7 @@
 			latex: output node without formatting
 			image_row: images of child nodes are arranged in a row (image_width is mandatory for child nodes)
 			image_sideways: rotate image 90 degrees
+			paragraphs: do not itemize the node and its children, rather output the descendandts which are not headings as one block of text
          alternatively apply a style applied with the same name to the node
 	-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
@@ -85,14 +86,29 @@
 	<!-- output each node as heading -->
 	<xsl:template match="node" mode="heading">
 		<xsl:param name="level" select="0"/>
+		<xsl:param name="paragraphs" select="false"/>
+
+		<!-- check if paragrahs is defined on node, otherwise use passed paragraphs (defaults to false) -->
+		<xsl:variable name="_paragraphs">
+			<xsl:choose>
+				<xsl:when test="attribute/@Name = 'paragraphs' or @STYLE_REF = 'paragraphs'">
+					<xsl:value-of select="true"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="$paragraphs"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
 		<xsl:choose>
 			<xsl:when test="@STYLE_REF = 'drop' or attribute[@NAME = 'drop']">
 				<!-- ignore node -->
 			</xsl:when>
-			<!-- we change our mind if the NoHeading attribute is present, in this case we this node and its children -->
+			<!-- we change our mind if the NoHeading attribute is present, in this case we itemize this node and its children -->
 			<xsl:when test="attribute/@NAME = 'NoHeading' or @STYLE_REF = 'NoHeading'">
 				<xsl:call-template name="itemize">
 					<xsl:with-param name="i" select="." />
+					<xsl:with-param name="paragraphs" select="$_paragraphs" />
 				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
@@ -132,44 +148,78 @@
 				-->
 				<xsl:choose>
 					<xsl:when test="attribute/@NAME = 'LastHeading' or @STYLE_REF = 'LastHeading'">
-						<xsl:call-template name="itemize"/>
+						<xsl:call-template name="itemize">
+							<xsl:with-param name="paragraphs" select="$_paragraphs"/>
+						</xsl:call-template>
 					</xsl:when>
 					<xsl:when test="$level &lt; $maxlevel">
 						<xsl:apply-templates mode="heading" select="node">
 							<xsl:with-param name="level" select="$level + 1"/>
+							<xsl:with-param name="paragraphs" select="$_paragraphs"/>
 						</xsl:apply-templates>
 					</xsl:when>
 					<xsl:otherwise>
-						<xsl:call-template name="itemize"/>
+						<xsl:call-template name="itemize">
+							<xsl:with-param name="paragraphs" select="$_paragraphs"/>
+						</xsl:call-template>
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
 
-	<!-- output nodes as itemized list -->
+	<!-- output nodes as itemized list (or as paragraphs) -->
 	<xsl:template name="itemize">
 		<xsl:param name="i" select="./node"/>
+		<xsl:param name="paragraphs" select="false"/>
+
+		<!-- check if paragrahs is defined on node, otherwise use passed paragraphs (defaults to false) -->
+		<xsl:variable name="_paragraphs">
+			<xsl:choose>
+				<xsl:when test="attribute/@Name = 'paragraphs' or @STYLE_REF = 'paragraphs'">
+					<xsl:value-of select="true"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="$paragraphs"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
+
 		<xsl:if test="$droptext = 'false' and $i">
-			<xsl:value-of select="concat('\begin{itemize}', $newline)"/>
+			<xsl:if test="not($_paragraphs)">
+				<xsl:value-of select="concat('\begin{itemize}', $newline)"/>
+			</xsl:if>
 			<xsl:for-each select="$i">
 				<xsl:choose>
 					<xsl:when test="@STYLE_REF = 'drop' or attribute[@NAME = 'drop']">
 						<!-- do nothing -->
 					</xsl:when>
 					<xsl:otherwise>
-						<xsl:text>\item </xsl:text>
+						<xsl:if test="not($_paragraphs)">
+							<xsl:text>\item </xsl:text>
+						</xsl:if>
 						<xsl:call-template name="output-node"/>
 						<xsl:value-of select="$newline"/>
+
 						<!-- no recursive call for image_row children -->
 						<xsl:if test="not(attribute/@NAME = 'image_row')">
 							<!-- recursive call -->
-							<xsl:call-template name="itemize"/>
+							<xsl:call-template name="itemize">
+								<xsl:with-param name="paragraphs" select="$_paragraphs"/>
+							</xsl:call-template>
 						</xsl:if>
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:for-each>
-			<xsl:value-of select="concat('\end{itemize}', $newline)"/>
+			<xsl:choose>
+				<xsl:when test="$_paragraphs">
+					<xsl:value-of select="concat($newline, $newline)"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="concat('\end{itemize}', $newline)"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:if>
 	</xsl:template>
 
@@ -192,23 +242,16 @@
 				<xsl:call-template name="output-node-as-text"/>
 			</xsl:otherwise>
 		</xsl:choose>
-	</xsl:template>
-
-	<xsl:template name="output-node-as-text">
-		<xsl:call-template name="output-node-text-as-text"/>
-		<xsl:call-template name="output-node-text-as-bodytext">
-			<xsl:with-param name="contentType" select="'DETAILS'"/>
-		</xsl:call-template>
-		<xsl:call-template name="output-node-text-as-bodytext">
-			<xsl:with-param name="contentType" select="'NOTE'"/>
-		</xsl:call-template>
 
 		<!-- use both @ID of node, and user-defined attribute 'label' as latex \label -->
-		<xsl:if test="@ID != ''">
-			<xsl:value-of select="concat('\label{', @ID, '}')"/>
-		</xsl:if>
-		<xsl:if test="attribute/@NAME = 'label'">
-			<xsl:value-of select="concat('\label{', attribute[@NAME='label']/@VALUE, '}')"/>
+		<!-- except for empty nodes, which indicate a new paragraph, and the \label would prevent a double newline -->
+		<xsl:if test="not(@TEXT = '')">
+			<xsl:if test="@ID != ''">
+				<xsl:value-of select="concat('\label{', @ID, '}')"/>
+			</xsl:if>
+			<xsl:if test="attribute/@NAME = 'label'">
+				<xsl:value-of select="concat('\label{', attribute[@NAME='label']/@VALUE, '}')"/>
+			</xsl:if>
 		</xsl:if>
 
 		<!-- translate arrow to ref -->
@@ -224,6 +267,16 @@
 		<xsl:if test="attribute[@NAME = 'key']">
       	  	<xsl:value-of select="concat(' \cite[', attribute[@NAME = 'cite_info']/@VALUE, ']{', attribute[@NAME = 'key']/@VALUE, '}')" />
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template name="output-node-as-text">
+		<xsl:call-template name="output-node-text-as-text"/>
+		<xsl:call-template name="output-node-text-as-bodytext">
+			<xsl:with-param name="contentType" select="'DETAILS'"/>
+		</xsl:call-template>
+		<xsl:call-template name="output-node-text-as-bodytext">
+			<xsl:with-param name="contentType" select="'NOTE'"/>
+		</xsl:call-template>
 	</xsl:template>
 
 	<xsl:template name="output-node-text-as-text">
