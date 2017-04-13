@@ -15,6 +15,8 @@
 		supported attributes on nodes
 			NoHeading: if attribute is present, the node and all childern are itemized
 			LastHeading: if attribute is present, all children are itemized
+			label: set custom \label (if wanting to use a \ref within the text, as ooposed to the auto-generated ref when using arrow links in docear)
+			cite_info: if present, it is passed to \cite as [optional parameter] (e.g. use it to set the page: 'p. 19')
 			image: if attribute is present, the figure located at $image_directory/$image is inserted
 			image_width: used for width of figure if present
 			drop: do not output node and children
@@ -200,10 +202,16 @@
 		<xsl:call-template name="output-node-text-as-bodytext">
 			<xsl:with-param name="contentType" select="'NOTE'"/>
 		</xsl:call-template>
-		<!-- translate arrow to ref -->
+
+		<!-- use both @ID of node, and user-defined attribute 'label' as latex \label -->
 		<xsl:if test="@ID != ''">
 			<xsl:value-of select="concat('\label{', @ID, '}')"/>
 		</xsl:if>
+		<xsl:if test="attribute/@NAME = 'label'">
+			<xsl:value-of select="concat('\label{', attribute[@NAME='label']/@VALUE, '}')"/>
+		</xsl:if>
+
+		<!-- translate arrow to ref -->
 		<xsl:if test="arrowlink/@DESTINATION != ''">
 			<xsl:text>, see \autoref{</xsl:text>
 			<!-- can have several pointers -->
@@ -214,7 +222,7 @@
 		</xsl:if>
 		<!-- output citation, one node can only have one -->
 		<xsl:if test="attribute[@NAME = 'key']">
-      	  	<xsl:value-of select="concat(' \cite{', attribute[@NAME = 'key']/@VALUE, '}')" />
+      	  	<xsl:value-of select="concat(' \cite[', attribute[@NAME = 'cite_info']/@VALUE, ']{', attribute[@NAME = 'key']/@VALUE, '}')" />
 		</xsl:if>
 	</xsl:template>
 
