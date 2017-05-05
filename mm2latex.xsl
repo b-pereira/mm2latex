@@ -53,30 +53,12 @@
 	<!--
 		the variable to be used to determine whether text nodes should be displayed
 	-->
-	<xsl:variable name="droptext">
-		<xsl:choose>
-			<xsl:when test="//map/node/attribute[@NAME='droptext']">
-				<xsl:value-of select="//map/node/attribute[@NAME='droptext']/@VALUE"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:value-of select="'false'"/>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:variable>
+	<xsl:variable name="droptext" select="boolean(//map/node/attribute/@NAME='droptext')"/>
 
 	<!--
 		the variable to be used to find images from the directory of the latex file (relative or absolute)
 	-->
-	<xsl:variable name="image_directory">
-		<xsl:choose>
-			<xsl:when test="//map/node/attribute[@NAME='image_directory']">
-				<xsl:value-of select="//map/node/attribute[@NAME='image_directory']/@VALUE"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:value-of select="'/'"/>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:variable>
+	<xsl:variable name="image_directory" select="//map/node/attribute[@NAME='image_directory']/@VALUE"/>
 
 	<!-- start at root -->
 	<xsl:template match="map">
@@ -86,19 +68,10 @@
 	<!-- output each node as heading -->
 	<xsl:template match="node" mode="heading">
 		<xsl:param name="level" select="0"/>
-		<xsl:param name="paragraphs" select="false"/>
+		<xsl:param name="paragraphs" select="false()"/>
 
 		<!-- check if paragrahs is defined on node, otherwise use passed paragraphs (defaults to false) -->
-		<xsl:variable name="_paragraphs">
-			<xsl:choose>
-				<xsl:when test="attribute/@Name = 'paragraphs' or @STYLE_REF = 'paragraphs'">
-					<xsl:value-of select="true"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="$paragraphs"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
+		<xsl:variable name="_paragraphs" select="boolean(attribute/@NAME = 'paragraphs') or boolean(@STYLE_REF = 'paragraphs') or $paragraphs"/>
 
 		<xsl:choose>
 			<xsl:when test="@STYLE_REF = 'drop' or attribute[@NAME = 'drop']">
@@ -109,6 +82,12 @@
 				<xsl:call-template name="itemize">
 					<xsl:with-param name="i" select="." />
 					<xsl:with-param name="paragraphs" select="$_paragraphs" />
+				</xsl:call-template>
+			</xsl:when>
+			<!-- drop this node and output children as paragraphs -->
+			<xsl:when test="attribute/@NAME = 'paragraphs_drop_self' or @STYLE_REF = 'paragraphs_drop_self'">
+				<xsl:call-template name="itemize">
+					<xsl:with-param name="paragraphs" select="true()" />
 				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
@@ -171,22 +150,13 @@
 	<!-- output nodes as itemized list (or as paragraphs) -->
 	<xsl:template name="itemize">
 		<xsl:param name="i" select="./node"/>
-		<xsl:param name="paragraphs" select="false"/>
+		<xsl:param name="paragraphs" select="false()"/>
 
 		<!-- check if paragrahs is defined on node, otherwise use passed paragraphs (defaults to false) -->
-		<xsl:variable name="_paragraphs">
-			<xsl:choose>
-				<xsl:when test="attribute/@Name = 'paragraphs' or @STYLE_REF = 'paragraphs'">
-					<xsl:value-of select="true"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="$paragraphs"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
+		<xsl:variable name="_paragraphs" select="boolean($i/attribute/@NAME = 'paragraphs') or boolean($i/@STYLE_REF = 'paragraphs') or $paragraphs"/>
 
 
-		<xsl:if test="$droptext = 'false' and $i">
+		<xsl:if test="not($droptext) and $i">
 			<xsl:if test="not($_paragraphs)">
 				<xsl:value-of select="concat('\begin{itemize}', $newline)"/>
 			</xsl:if>
@@ -212,14 +182,9 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:for-each>
-			<xsl:choose>
-				<xsl:when test="$_paragraphs">
-					<xsl:value-of select="concat($newline, $newline)"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="concat('\end{itemize}', $newline)"/>
-				</xsl:otherwise>
-			</xsl:choose>
+			<xsl:if test="not($_paragraphs)">
+				<xsl:value-of select="concat('\end{itemize}', $newline)"/>
+			</xsl:if>
 		</xsl:if>
 	</xsl:template>
 
