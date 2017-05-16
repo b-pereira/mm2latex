@@ -22,6 +22,7 @@ Based on `mm2wordml_utf8.xsl` by Naoki Nose and Eric Lavarde
 - **label**: set a custom \label (if wanting to use a \ref within the text, as ooposed to the auto-generated ref when using arrow links in docear)
 - **cite_info**: set the optional parameter for \cite, e.g. 'p. 19'
 - **image**: if attribute is present, the figure located at $image_directory/$image is inserted
+  - if no value is given, the node is assumed to contain latex code (the caption should be then specified with the **caption** attribute)
 - **image_width**: used for width of figure if present
 - **drop**: do not output node and children
 - **code**: output node in `lstlisting block`
