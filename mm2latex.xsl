@@ -17,7 +17,8 @@
 			LastHeading: if attribute is present, all children are itemized
 			label: set custom \label (if wanting to use a \ref within the text, as ooposed to the auto-generated ref when using arrow links in docear)
 			cite_info: if present, it is passed to \cite as [optional parameter] (e.g. use it to set the page: 'p. 19')
-			image: if attribute is present, the figure located at $image_directory/$image is inserted
+			image: if attribute is present, the figure located at $image_directory/$image is inserted (if it is empty, the node content is used as latex)
+                        caption: only used, if the image attribute is empty (otherwise, the node content is used as caption)
 			image_width: used for width of figure if present
 			drop: do not output node and children
 			code: output node as \begin{lstlisting}...\end{lstlisting}
@@ -297,16 +298,32 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
+		<xsl:variable name="includeGraphics" select="attribute[@NAME='image']/@VALUE != ''"/>
 
 		<xsl:value-of select="concat('\begin{', $figure, '}', $position)" />
 		<xsl:text>
-\begin{center}
-\includegraphics[width=</xsl:text>
-		<xsl:value-of select="concat($image_width, ']{')" />
-		<xsl:value-of disable-output-escaping="yes" select="concat($image_directory, '/', attribute[@NAME='image']/@VALUE)"/>
-		<xsl:text>}
+\begin{center}</xsl:text>
+		<xsl:if test="$includeGraphics">
+			<xsl:text>
+	\includegraphics[width=</xsl:text>
+			<xsl:value-of select="concat($image_width, ']{')" />
+			<xsl:value-of disable-output-escaping="yes" select="concat($image_directory, '/', attribute[@NAME='image']/@VALUE)"/>
+			<xsl:text>}</xsl:text>
+		</xsl:if>
+		<xsl:if test="not($includeGraphics)">
+			<!-- assume we have a latex figure -->
+			<xsl:call-template name="output-node-as-latex"/>
+		</xsl:if>
+		<xsl:text>
 \caption{</xsl:text>
-		<xsl:call-template name="output-node-as-text"/>
+		<!-- includeGraphics: use node content as caption -->
+		<xsl:if test="$includeGraphics">
+			<xsl:call-template name="output-node-as-text"/>
+		</xsl:if>
+		<!-- latex image: use caption attribute as caption -->
+		<xsl:if test="not($includeGraphics)">
+			<xsl:value-of select="attribute[@NAME='caption']/@VALUE"/>
+		</xsl:if>
 		<xsl:text>}
 \end{center}
 </xsl:text>
