@@ -229,9 +229,12 @@
 			</xsl:for-each>
 		  	<xsl:text>}</xsl:text>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template name="output-node-citation">
 		<!-- output citation, one node can only have one -->
 		<xsl:if test="attribute[@NAME = 'key']">
-      	  	<xsl:value-of select="concat(' \cite[', attribute[@NAME = 'cite_info']/@VALUE, ']{', attribute[@NAME = 'key']/@VALUE, '}')" />
+      	  		<xsl:value-of select="concat(' \cite[', attribute[@NAME = 'cite_info']/@VALUE, ']{', attribute[@NAME = 'key']/@VALUE, '}')" />
 		</xsl:if>
 	</xsl:template>
 
@@ -243,6 +246,7 @@
 		<xsl:call-template name="output-node-text-as-bodytext">
 			<xsl:with-param name="contentType" select="'NOTE'"/>
 		</xsl:call-template>
+		<xsl:call-template name="output-node-citation"/>
 	</xsl:template>
 
 	<xsl:template name="output-node-text-as-text">
@@ -323,6 +327,7 @@
 		<!-- latex image: use caption attribute as caption -->
 		<xsl:if test="not($includeGraphics)">
 			<xsl:value-of select="attribute[@NAME='caption']/@VALUE"/>
+			<xsl:call-template name="output-node-citation"/>
 		</xsl:if>
 		<xsl:text>}
 \end{center}
