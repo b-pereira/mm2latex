@@ -189,6 +189,19 @@
 		</xsl:if>
 	</xsl:template>
 
+	<xsl:template name="output-label">
+		<!-- use both @ID of node, and user-defined attribute 'label' as latex \label -->
+		<!-- except for empty nodes, which indicate a new paragraph, and the \label would prevent a double newline -->
+		<xsl:if test="not(@TEXT = '')">
+			<xsl:if test="@ID != ''">
+				<xsl:value-of select="concat('\label{', @ID, '}')"/>
+			</xsl:if>
+			<xsl:if test="attribute/@NAME = 'label'">
+				<xsl:value-of select="concat('\label{', attribute[@NAME='label']/@VALUE, '}')"/>
+			</xsl:if>
+		</xsl:if>
+	</xsl:template>
+
 	<xsl:template name="output-node">
 		<!-- if node is an image -->
 		<xsl:choose>
@@ -208,17 +221,6 @@
 				<xsl:call-template name="output-node-as-text"/>
 			</xsl:otherwise>
 		</xsl:choose>
-
-		<!-- use both @ID of node, and user-defined attribute 'label' as latex \label -->
-		<!-- except for empty nodes, which indicate a new paragraph, and the \label would prevent a double newline -->
-		<xsl:if test="not(@TEXT = '')">
-			<xsl:if test="@ID != ''">
-				<xsl:value-of select="concat('\label{', @ID, '}')"/>
-			</xsl:if>
-			<xsl:if test="attribute/@NAME = 'label'">
-				<xsl:value-of select="concat('\label{', attribute[@NAME='label']/@VALUE, '}')"/>
-			</xsl:if>
-		</xsl:if>
 
 		<!-- translate arrow to ref -->
 		<xsl:if test="arrowlink/@DESTINATION != ''">
@@ -247,6 +249,7 @@
 			<xsl:with-param name="contentType" select="'NOTE'"/>
 		</xsl:call-template>
 		<xsl:call-template name="output-node-citation"/>
+		<xsl:call-template name="output-label"/>
 	</xsl:template>
 
 	<xsl:template name="output-node-text-as-text">
@@ -328,8 +331,10 @@
 		<xsl:if test="not($includeGraphics)">
 			<xsl:value-of select="attribute[@NAME='caption']/@VALUE"/>
 			<xsl:call-template name="output-node-citation"/>
-		</xsl:if>
+		</xsl:if>		
+		<xsl:call-template name="output-label"/>
 		<xsl:text>}
+
 \end{center}
 </xsl:text>
 		<xsl:value-of select="concat('\end{', $figure, '}', $newline)" />
@@ -393,6 +398,7 @@
 	<xsl:template name="output-node-as-code">
 		<xsl:text>\begin{lstlisting}</xsl:text>
 		<xsl:value-of disable-output-escaping="yes" select="@TEXT"/>
+		<xsl:call-template name="output-label"/>
 		<xsl:text>\end{lstlisting}</xsl:text>
 	</xsl:template>
 
