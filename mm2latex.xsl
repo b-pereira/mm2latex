@@ -298,7 +298,7 @@
 					<xsl:text></xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:text>[H]</xsl:text>
+					<xsl:text>[htbp]</xsl:text>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
