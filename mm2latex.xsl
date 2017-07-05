@@ -330,6 +330,7 @@
 		<xsl:if test="not($includeGraphics)">
 			<xsl:for-each select="./node">
 				<xsl:call-template name="output-node"/>
+				<xsl:value-of select="$newline"/>
 			</xsl:for-each>
 			<xsl:call-template name="output-node-citation"/>
 		</xsl:if>		
