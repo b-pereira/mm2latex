@@ -25,7 +25,8 @@
 			image_row: images of child nodes are arranged in a row (image_width is mandatory for child nodes)
 			image_sideways: rotate image 90 degrees
 			paragraphs: do not itemize the node and its children, rather output the descendandts which are not headings as one block of text
-         alternatively apply a style applied with the same name to the node
+			position: if present, used as position for images (e.g. `H`)
+		alternatively apply a style applied with the same name to the node
 	-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
 	<xsl:output encoding="UTF-8" omit-xml-declaration="yes"/>
@@ -295,6 +296,9 @@
 				<!-- sidewaysimage does not work with [H] parameter -->
 				<xsl:when test="attribute/@NAME = 'image_sideways'">
 					<xsl:text></xsl:text>
+				</xsl:when>
+				<xsl:when test="attribute/@NAME = 'position'">
+					<xsl:value-of select="attribute[@NAME = 'position']/@VALUE"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:text>[htbp]</xsl:text>
