@@ -312,7 +312,7 @@
 
 		<xsl:value-of select="concat('\begin{', $figure, '}', $position)" />
 		<xsl:text>
-\begin{center}</xsl:text>
+\makebox[\textwidth][c]{</xsl:text>
 		<xsl:if test="$includeGraphics">
 			<xsl:text>
 	\includegraphics[width=</xsl:text>
@@ -325,7 +325,7 @@
 			<xsl:call-template name="output-node-as-latex"/>
 		</xsl:if>
 		<xsl:text>
-\caption{</xsl:text>
+}\caption{</xsl:text>
 		<!-- includeGraphics: use node content as caption -->
 		<xsl:if test="$includeGraphics">
 			<xsl:call-template name="output-node-as-text"/>
@@ -340,8 +340,6 @@
 		</xsl:if>		
 		<xsl:call-template name="output-label"/>
 		<xsl:text>}
-
-\end{center}
 </xsl:text>
 		<xsl:value-of select="concat('\end{', $figure, '}', $newline)" />
 	</xsl:template>
