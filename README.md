@@ -29,6 +29,7 @@ Based on `mm2wordml_utf8.xsl` by Naoki Nose and Eric Lavarde
 - **latex**: output node without formatting
 - **image_row**: images of child nodes are arranged in a row (image_width is mandatory for child nodes)
 - **image_sideways**: rotate image 90 degrees
+- **continued**: add \ContinuedFloat to image
 - **paragraphs**: do not itemize the node and its children, rather output the descendandts which are not headings as one block of text. Use a node with no text to create a new paragraph.
 - **paragraphs_drop_self**: like _paragraphs_, but do not output the current node (only its children)
 - **position**: position attribute for images (optional, e.g. `Htp`)
