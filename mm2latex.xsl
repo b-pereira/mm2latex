@@ -26,6 +26,7 @@
 			image_sideways: rotate image 90 degrees
 			paragraphs: do not itemize the node and its children, rather output the descendandts which are not headings as one block of text
 			position: if present, used as position for images (e.g. `H`)
+			continued: if presen on an image, adds \ContinuedFloat
 		alternatively apply a style applied with the same name to the node
 	-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:func="http://exslt.org/functions">
@@ -308,9 +309,11 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
+		<xsl:variable name="continued" select="boolean(attribute/@NAME='continued')" />
 		<xsl:variable name="includeGraphics" select="attribute[@NAME='image']/@VALUE != ''"/>
 
 		<xsl:value-of select="concat('\begin{', $figure, '}', $position)" />
+			<xsl:if test="$continued"><xsl:text>\ContinuedFloat</xsl:text></xsl:if>
 		<xsl:text>
 \makebox[\textwidth][c]{</xsl:text>
 		<xsl:if test="$includeGraphics">
