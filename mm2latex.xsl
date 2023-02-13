@@ -339,10 +339,6 @@
 			<xsl:call-template name="output-node-citation"/>
 		</xsl:if>
 		<xsl:text>}
-<<<<<<< Updated upstream
-\end{center}
-=======
->>>>>>> Stashed changes
 </xsl:text>
 		<xsl:value-of select="concat('\end{', $figure, '}', $newline)" />
 	</xsl:template>
